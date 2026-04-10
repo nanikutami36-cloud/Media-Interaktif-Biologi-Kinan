@@ -1,13 +1,583 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Simulasi 21</title>
-    <link rel="stylesheet" href="styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genetica Master Lab v18.1 - Nanik Utami, ST., S.Pd.</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .segment { display: none; min-height: 90vh; animation: fadeIn 0.4s ease-out; }
+        .segment.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .p-table td { border: 1px solid #e2e8f0; padding: 12px; text-align: center; font-weight: bold; font-family: monospace; }
+        .p-head { background: #4f46e5; color: white; }
+        
+        .drop-zone { min-height: 80px; border: 2px dashed #cbd5e1; border-radius: 12px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; padding: 10px; background: #f8fafc; transition: 0.3s; }
+        .draggable { cursor: grab; padding: 10px; background: white; border: 2px solid #4f46e5; border-radius: 10px; font-weight: bold; font-size: 13px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin: 2px; }
+        
+        .f1-card { cursor: pointer; transition: 0.3s; border: 2px solid #e2e8f0; }
+        .f1-card.selected { border-color: #4f46e5; background: #eef2ff; transform: scale(1.05); }
+        
+        .quiz-option { cursor: pointer; transition: 0.3s; border: 2px solid #e2e8f0; margin-bottom: 8px; padding: 12px; border-radius: 12px; }
+        .quiz-option:hover { border-color: #4f46e5; background: #f5f3ff; }
+
+        .home-card { transition: all 0.3s ease; cursor: pointer; }
+        .home-card:hover { transform: translateY(-5px); filter: brightness(1.1); }
+
+        .materi-card { background: white; border-radius: 1.5rem; border: 1px solid #e2e8f0; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        .dna-tag { padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 10px; color: white; }
+
+        @media print {
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area { position: absolute; left: 0; top: 0; width: 100%; border: none; }
+            .no-print { display: none; }
+        }
+    </style>
 </head>
-<body>
-    <h1>Simulasi 21</h1>
-    <p>Welcome to Simulasi 21! Here you will learn about biology through interactive simulations.</p>
-    <script src="script.js"></script>
+<body class="bg-slate-50 text-slate-900 font-sans">
+
+    <nav class="bg-white p-6 no-print shadow-sm">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div onclick="showSegment('home')" class="cursor-pointer font-black text-2xl text-indigo-900 tracking-tighter uppercase">
+                GENETICA <span class="text-blue-600">LAB</span>
+            </div>
+            <div class="flex gap-8 font-bold text-xs uppercase tracking-widest text-slate-600">
+                <button onclick="showSegment('home')" class="hover:text-blue-600">Home</button>
+                <button onclick="showSegment('materi')" class="hover:text-blue-600">Materi</button>
+                <button onclick="showSegment('punnett')" class="hover:text-blue-600">Kalkulator</button>
+                <button onclick="showSegment('evaluasi')" class="bg-indigo-900 text-white px-4 py-1 rounded-md">Evaluasi</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto p-4 md:p-8">
+
+        <section id="home" class="segment active no-print">
+            <div class="bg-white rounded-[2.5rem] shadow-xl p-12 flex flex-col lg:flex-row gap-12 items-center min-h-[500px]">
+                <div class="lg:w-1/2 space-y-6">
+                    <span class="bg-blue-100 text-blue-600 px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">Media Pembelajaran Interaktif</span>
+                    <h1 class="text-6xl font-black text-slate-900 leading-tight">Selamat Datang di<br>Dunia Genetika</h1>
+                    <div class="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border-l-4 border-blue-500 w-fit shadow-inner">
+                        <img src="foto pas foto nanik.jpeg" alt="Nanik Utami, ST., S.PD." class="w-16 h-16 rounded-full object-cover border-2 border-white shadow-md">
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">Guru Mata Pelajaran</p>
+                            <h4 class="font-black text-slate-800 text-lg">Nanik Utami, ST., S.PD.</h4>
+                            <p class="text-xs text-slate-500 italic">SMA Raudlatul Jannah</p>
+                        </div>
+                    </div>
+                    <button onclick="showSegment('materi')" class="bg-indigo-600 text-white px-8 py-4 rounded-xl font-bold flex items-center gap-3 hover:bg-indigo-700 transition shadow-lg">
+                        Mulai Eksplorasi <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+                <div class="lg:w-1/2 grid grid-cols-2 gap-4">
+                    <div onclick="showSegment('materi')" class="home-card bg-blue-500 p-8 rounded-[2rem] text-white space-y-3">
+                        <i class="fa-solid fa-dna text-3xl"></i>
+                        <h3 class="text-xl font-bold">Materi Dasar</h3>
+                        <p class="text-xs opacity-80">DNA & Replikasi</p>
+                    </div>
+                    <div onclick="showSegment('punnett')" class="home-card bg-purple-500 p-8 rounded-[2rem] text-white space-y-3">
+                        <i class="fa-solid fa-calculator text-3xl"></i>
+                        <h3 class="text-xl font-bold">Kalkulator</h3>
+                        <p class="text-xs opacity-80">Simulasi Punnett</p>
+                    </div>
+                    <div onclick="showSegment('game1')" class="home-card bg-orange-500 p-8 rounded-[2rem] text-white space-y-3">
+                        <i class="fa-solid fa-gamepad text-3xl"></i>
+                        <h3 class="text-xl font-bold">Game 1</h3>
+                        <p class="text-xs opacity-80">Drag & Drop Gen</p>
+                    </div>
+                    <div onclick="showSegment('game2')" class="home-card bg-emerald-500 p-8 rounded-[2rem] text-white space-y-3">
+                        <i class="fa-solid fa-flask-vial text-3xl"></i>
+                        <h3 class="text-xl font-bold">Game 2</h3>
+                        <p class="text-xs opacity-80">Label Replikasi</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="materi" class="segment no-print">
+            <div class="space-y-8">
+                <div class="bg-indigo-900 text-white p-10 rounded-[2.5rem] shadow-xl relative overflow-hidden">
+                    <div class="relative z-10">
+                        <h2 class="text-4xl font-black mb-2 uppercase italic">Pusat Studi Genetika</h2>
+                        <p class="text-indigo-200 max-w-2xl">Mempelajari struktur molekuler hereditas, mekanisme replikasi, hingga hukum pewarisan sifat Mendel.</p>
+                    </div>
+                    <i class="fa-solid fa-dna absolute right-[-20px] top-[-20px] text-[15rem] opacity-10 rotate-12"></i>
+                </div>
+
+                <div class="grid lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 space-y-6">
+                        <div class="materi-card border-l-[12px] border-blue-500">
+                            <h3 class="text-xl font-black text-blue-900 flex items-center gap-2 mb-4">
+                                <i class="fa-solid fa-circle-nodes text-blue-500"></i> Struktur Molekul DNA
+                            </h3>
+                            <div class="flex flex-col md:flex-row gap-6 items-center">
+                                <img src="https://cdn-icons-png.flaticon.com/512/3215/3215601.png" class="w-32" alt="DNA Info">
+                                <div class="grid grid-cols-2 gap-4 flex-1">
+                                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase">Double Helix</p>
+                                        <p class="text-xs leading-relaxed">Rantai ganda berpilin ke kanan yang dihubungkan oleh ikatan hidrogen.</p>
+                                    </div>
+                                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase">Basa Purin</p>
+                                        <div class="flex gap-2 mt-1">
+                                            <span class="dna-tag bg-blue-600">Adenin (A)</span>
+                                            <span class="dna-tag bg-indigo-600">Guanin (G)</span>
+                                        </div>
+                                    </div>
+                                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase">Basa Pirimidin</p>
+                                        <div class="flex gap-2 mt-1">
+                                            <span class="dna-tag bg-emerald-600">Sitosin (C)</span>
+                                            <span class="dna-tag bg-rose-600">Timin (T)</span>
+                                        </div>
+                                    </div>
+                                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase">Pasangan Tetap</p>
+                                        <p class="text-xs font-black text-indigo-700">A = T (2 Ikatan H) <br> G ≡ C (3 Ikatan H)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="materi-card bg-indigo-50 border-none">
+                            <h3 class="text-xl font-black text-indigo-900 mb-4"><i class="fa-solid fa-gears mr-2"></i>Enzim & Mekanisme Replikasi</h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="flex gap-4 items-start bg-white p-4 rounded-2xl shadow-sm">
+                                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 font-bold shrink-0">H</div>
+                                    <div><p class="font-bold text-sm">Helikase</p><p class="text-[11px] text-slate-500">Membuka jalinan ganda DNA menjadi dua rantai tunggal.</p></div>
+                                </div>
+                                <div class="flex gap-4 items-start bg-white p-4 rounded-2xl shadow-sm">
+                                    <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600 font-bold shrink-0">P</div>
+                                    <div><p class="font-bold text-sm">Polimerase</p><p class="text-[11px] text-slate-500">Merangkai nukleotida baru untuk membentuk rantai komplementer.</p></div>
+                                </div>
+                                <div class="flex gap-4 items-start bg-white p-4 rounded-2xl shadow-sm">
+                                    <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center text-orange-600 font-bold shrink-0">L</div>
+                                    <div><p class="font-bold text-sm">Ligase</p><p class="text-[11px] text-slate-500">Menyambung fragmen DNA (Okazaki) menjadi satu rantai utuh.</p></div>
+                                </div>
+                                <div class="flex gap-4 items-start bg-white p-4 rounded-2xl shadow-sm">
+                                    <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center text-purple-600 font-bold shrink-0">Pr</div>
+                                    <div><p class="font-bold text-sm">Primase</p><p class="text-[11px] text-slate-500">Membentuk RNA primer sebagai titik awal polimerisasi.</p></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="materi-card border-t-4 border-indigo-500">
+                            <span class="bg-indigo-100 text-indigo-700 text-[10px] font-black px-3 py-1 rounded-full uppercase">Hukum I (Segregasi)</span>
+                            <h4 class="font-bold mt-2 text-sm italic">"Pemisahan gen sealel secara bebas saat meiosis."</h4>
+                            <div class="mt-4 p-3 bg-slate-50 rounded-xl border border-dashed border-slate-300">
+                                <p class="text-[10px] font-bold text-slate-400 mb-1 uppercase">Contoh Soal:</p>
+                                <p class="text-[11px] text-slate-600">Disilangkan Mawar Merah (MM) dengan Merah (Mm).</p>
+                                <p class="text-[11px] font-black text-indigo-700 mt-1">Jawab: 100% Merah (MM & Mm)</p>
+                            </div>
+                        </div>
+                        <div class="materi-card border-t-4 border-purple-500">
+                            <span class="bg-purple-100 text-purple-700 text-[10px] font-black px-3 py-1 rounded-full uppercase">Hukum II (Asortasi)</span>
+                            <h4 class="font-bold mt-2 text-sm italic">"Gen sealel mengelompok secara bebas dengan gen lain."</h4>
+                            <div class="mt-4 p-3 bg-slate-50 rounded-xl border border-dashed border-slate-300">
+                                <p class="text-[10px] font-bold text-slate-400 mb-1 uppercase">Contoh Soal:</p>
+                                <p class="text-[11px] text-slate-600">Buncis Bulat Kuning (BbKk) x Sesamanya.</p>
+                                <p class="text-[11px] font-black text-purple-700 mt-1">Jawab: Rasio 9 : 3 : 3 : 1</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+<div class="bg-white p-10 rounded-[2.5rem] shadow-xl space-y-10 border border-slate-100">
+                    <h3 class="text-3xl font-black text-indigo-950 flex items-center gap-3"><i class="fa-solid fa-chart-diagram text-indigo-500"></i> Diagram Persilangan Mendel</h3>
+                    
+                    <div class="grid lg:grid-cols-2 gap-10">
+                        <div class="space-y-6">
+                            <h4 class="text-xl font-bold text-slate-800 p-3 bg-slate-50 rounded-xl border border-slate-100">Hukum I: Segregasi Bebas (Monohibrid)</h4>
+                            <p class="text-sm text-slate-600 leading-relaxed">Pemisahan pasangan alel secara bebas pada pembentukan gamet.</p>
+                            <div class="border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center space-y-3">
+                                <p class="font-mono text-sm bg-slate-100 p-2 rounded">Parental (P): <b class="text-blue-600">Aa</b> x <b class="text-red-600">Aa</b></p>
+                                <p class="font-mono text-xs">Gamet: <b class="text-blue-600">A, a</b> dan <b class="text-red-600">A, a</b></p>
+                                <div class="w-[120px] h-[120px] mx-auto border-4 border-double font-bold text-2xl flex items-center justify-center rounded-2xl shadow-inner bg-slate-50">
+                                    <div class="grid grid-cols-2 grid-rows-2 text-indigo-700 w-full h-full p-2">
+                                        <div class="border flex items-center justify-center">AA</div><div class="border flex items-center justify-center">Aa</div>
+                                        <div class="border flex items-center justify-center">Aa</div><div class="border flex items-center justify-center">aa</div>
+                                    </div>
+                                </div>
+                                <div class="text-xs font-semibold grid grid-cols-2 gap-2 text-left pt-3 mt-3 border-t">
+                                    <p>Rasio Genotipe:<br><b class="text-indigo-600">AA : Aa : aa = 1 : 2 : 1</b></p>
+                                    <p>Rasio Fenotipe:<br><b class="text-blue-600">Dominan : Resesif = 3 : 1</b></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-6">
+                            <h4 class="text-xl font-bold text-slate-800 p-3 bg-slate-50 rounded-xl border border-slate-100">Hukum II: Asortasi Bebas (Dihibrid)</h4>
+                            <p class="text-sm text-slate-600 leading-relaxed">Pengelompokan alel secara bebas pada pembentukan individu baru.</p>
+                            <div class="border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center space-y-3">
+                                <p class="font-mono text-sm bg-slate-100 p-2 rounded">Parental (P): <b class="text-blue-600">AaBb</b> x <b class="text-red-600">AaBb</b></p>
+                                <p class="font-mono text-xs">Gamet: <b class="text-blue-600">AB, Ab, aB, ab</b> (4 macam)</p>
+                                <div class="w-[120px] h-[120px] mx-auto border-4 border-double rounded-2xl shadow-inner bg-slate-50 flex items-center justify-center">
+                                    <svg viewBox="0 0 100 100" class="w-full h-full p-1 opacity-50">
+                                        <rect width="100" height="100" fill="none" stroke="black" stroke-width="0.5"/>
+                                        <line x1="25" y1="0" x2="25" y2="100" stroke="black" stroke-width="0.5"/><line x1="50" y1="0" x2="50" y2="100" stroke="black" stroke-width="0.5"/><line x1="75" y1="0" x2="75" y2="100" stroke="black" stroke-width="0.5"/>
+                                        <line x1="0" y1="25" x2="100" y2="25" stroke="black" stroke-width="0.5"/><line x1="0" y1="50" x2="100" y2="50" stroke="black" stroke-width="0.5"/><line x1="0" y1="75" x2="100" y2="75" stroke="black" stroke-width="0.5"/>
+                                    </svg>
+                                </div>
+                                <div class="text-xs font-semibold pt-3 mt-3 border-t text-center">
+                                    <p>Rasio Fenotipe F2 (Hibrid Sempurna):</p>
+                                    <p><b class="text-indigo-600 text-sm tracking-widest">9 : 3 : 3 : 1</b></p>
+                                    <p class="text-[9px] text-slate-500 mt-1">(Dom-Dom : Dom-Res : Res-Dom : Res-Res)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-slate-900 p-8 md:p-12 rounded-[3rem] shadow-2xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 blur-[100px]"></div>
+                    <div class="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 blur-[100px]"></div>
+
+                    <div class="relative z-10 flex flex-col lg:flex-row gap-10 items-center">
+                        <div class="lg:w-1/3 space-y-4">
+                            <span class="bg-red-500 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest flex items-center w-fit gap-2">
+                                <i class="fa-solid fa-circle-play animate-pulse"></i> Multimedia Lab
+                            </span>
+                            <h3 class="text-3xl font-black text-white leading-tight">Visualisasi Mekanisme <span class="text-indigo-400">Replikasi DNA</span></h3>
+                            <p class="text-slate-400 text-sm leading-relaxed">
+                                Tonton video ini untuk memahami bagaimana enzim Helikase, Polimerase, dan Ligase bekerja secara sinkron dalam proses replikasi semikonservatif.
+                            </p>
+                            <div class="flex gap-3 pt-2">
+                                <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700">
+                                    <p class="text-[10px] font-bold text-slate-500 uppercase">Durasi</p>
+                                    <p class="text-xs text-white font-bold">~12 Menit</p>
+                                </div>
+                                <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700">
+                                    <p class="text-[10px] font-bold text-slate-500 uppercase">Level</p>
+                                    <p class="text-xs text-white font-bold">SMA / XII</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="relative w-full rounded-xl overflow-hidden shadow-lg bg-slate-900 aspect-video flex flex-col items-center justify-center p-6 text-center">
+    <div class="mb-4 text-red-600">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8.051 1.999h.089c.822.003 4.987.033 6.11.335a2.01 2.01 0 0 1 1.415 1.42c.101.38.172.883.22 1.402l.01.104.022.261.013.308c.01.285.013.39.013.532 0 .141-.002.247-.013.532l-.013.308-.022.261-.01.104c-.048.519-.119 1.023-.22 1.402a2.01 2.01 0 0 1-1.415 1.42c-1.16.312-5.569.334-6.18.335h-.142c-.309 0-1.587-.006-2.927-.052l-.17-.006-.087-.004-.171-.007-.171-.007c-1.11-.049-2.167-.128-2.654-.26a2.007 2.007 0 0 1-1.415-1.419c-.111-.417-.185-.986-.235-1.558L.09 9.82l-.008-.104A31.4 31.4 0 0 1 0 7.68v-.135a31.26 31.26 0 0 1 .091-2.04l.027-.287.041-.507c.05-.572.124-1.14.235-1.558a2.007 2.007 0 0 1 1.415-1.419c.487-.13 1.544-.21 2.654-.26l.17-.007.171-.007.087-.004.17-.006c1.34-.046 2.618-.052 2.927-.052H8.051zM6.62 10.3l3.992-2.301L6.62 5.696V10.3z"/>
+        </svg>
+    </div>
+    
+    <h3 class="text-white font-bold mb-2">Video Hanya Dapat Dilihat di YouTube</h3>
+    <p class="text-slate-400 text-sm mb-4">Pemilik video membatasi pemutaran langsung di situs lain.</p>
+    
+    <a href="https://www.youtube.com/watch?v=2_-jSoSaaTA" target="_blank" 
+       class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-full font-medium transition-all">
+        Tonton di YouTube
+    </a>
+</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="punnett" class="segment no-print">
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-xl space-y-8">
+                <div class="flex justify-between items-center border-b pb-4">
+                    <h2 class="text-3xl font-black text-indigo-950">Kalkulator Punnett</h2>
+                    <div class="flex gap-2">
+                        <button onclick="setMode('mono')" id="m-mono" class="px-4 py-1 rounded-full text-[10px] font-bold bg-indigo-600 text-white">MONO</button>
+                        <button onclick="setMode('di')" id="m-di" class="px-4 py-1 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600">DI</button>
+                    </div>
+                </div>
+                <div class="max-w-xl mx-auto p-8 bg-slate-50 rounded-3xl border-2 border-indigo-100 text-center">
+                    <p class="text-[10px] font-bold text-slate-400 mb-4 uppercase italic">Penting: Perhatikan Huruf Kapital/Kecil!</p>
+                    <div class="flex items-center gap-4 mb-6">
+                        <input id="p1-in" type="text" placeholder="AA" class="w-full p-4 rounded-xl text-center font-bold text-2xl border-2 border-indigo-200 outline-none">
+                        <span class="text-2xl font-black">×</span>
+                        <input id="p2-in" type="text" placeholder="aa" class="w-full p-4 rounded-xl text-center font-bold text-2xl border-2 border-indigo-200 outline-none">
+                    </div>
+                    <button onclick="doF1()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black shadow-lg uppercase tracking-widest">Silangkan Parental (P1)</button>
+                </div>
+                <div id="f1-box" class="hidden space-y-6 text-center">
+                    <h5 class="font-bold text-slate-500 uppercase text-xs italic">Pilih 2 Genotipe F1 untuk disilangkan ke F2:</h5>
+                    <div id="f1-list" class="flex flex-wrap justify-center gap-4"></div>
+                    <div class="flex justify-center items-center gap-6">
+                        <div id="sel-1" class="w-24 h-16 bg-white border-2 border-dashed rounded-xl flex items-center justify-center font-black text-xl">?</div>
+                        <span class="font-black">×</span>
+                        <div id="sel-2" class="w-24 h-16 bg-white border-2 border-dashed rounded-xl flex items-center justify-center font-black text-xl">?</div>
+                    </div>
+                    <button id="btn-f2" onclick="doF2()" class="hidden px-12 py-4 bg-emerald-600 text-white rounded-2xl font-black shadow-xl">PROSES F2</button>
+                </div>
+                <div id="f2-box" class="hidden grid lg:grid-cols-2 gap-8 pt-8 border-t">
+                    <div class="overflow-x-auto"><table id="f2-table" class="w-full p-table bg-white"></table></div>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-white rounded-xl shadow-sm border"><h6 class="font-bold border-b mb-2">Rasio Genotipe</h6><ul id="f2-gen" class="text-sm"></ul></div>
+                        <div class="p-4 bg-white rounded-xl shadow-sm border"><h6 class="font-bold border-b mb-2">Rasio Fenotipe</h6><ul id="f2-phen" class="text-sm"></ul></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="game1" class="segment no-print">
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-xl space-y-8">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-black text-orange-600">Game: Klasifikasi Genetik</h2>
+                    <div id="score1" class="bg-orange-500 text-white px-6 py-2 rounded-full font-black text-xl">0</div>
+                </div>
+                <div class="flex justify-center gap-2">
+                    <button onclick="initGame1('mono')" id="btn-gm-mono" class="px-6 py-2 rounded-xl font-bold bg-indigo-600 text-white">MONOHIBRID</button>
+                    <button onclick="initGame1('di')" id="btn-gm-di" class="px-6 py-2 rounded-xl font-bold bg-slate-100 text-slate-600">DIHIBRID</button>
+                </div>
+                <div id="deck1" class="drop-zone border-orange-200 min-h-[150px]"></div>
+                <div id="zones1" class="grid grid-cols-2 lg:grid-cols-4 gap-4"></div>
+            </div>
+        </section>
+
+        <section id="game2" class="segment no-print">
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-xl space-y-8">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-black text-emerald-600 uppercase">Lab Nama & Fungsi Enzim</h2>
+                    <div id="score2" class="bg-emerald-500 text-white px-6 py-2 rounded-full font-black text-xl">0</div>
+                </div>
+                <div class="grid lg:grid-cols-3 gap-8">
+                    <div id="enz-names" class="flex flex-col gap-3"></div>
+                    <div id="enz-zones" class="lg:col-span-2 space-y-3"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="evaluasi" class="segment no-print">
+            <div id="eval-setup" class="bg-white p-12 rounded-[3rem] shadow-2xl max-w-xl mx-auto text-center space-y-8">
+                <h2 class="text-3xl font-black">Mulai Evaluasi</h2>
+                <div class="space-y-4 text-left">
+                    <label class="font-bold text-slate-600 text-xs uppercase tracking-widest ml-1">Nama Lengkap Siswa</label>
+                    <input id="stu-name" type="text" placeholder="Ketik nama anda..." class="w-full p-4 rounded-xl border-2 border-slate-200 focus:border-indigo-600 outline-none font-bold">
+                    <p class="text-center font-bold text-slate-400 mt-4 italic">Pilih Jumlah Soal:</p>
+                    <div class="grid grid-cols-3 gap-3">
+                        <button onclick="startQuiz(5)" class="p-4 bg-indigo-50 hover:bg-indigo-600 hover:text-white rounded-2xl font-black transition">5 Soal</button>
+                        <button onclick="startQuiz(10)" class="p-4 bg-indigo-50 hover:bg-indigo-600 hover:text-white rounded-2xl font-black transition">10 Soal</button>
+                        <button onclick="startQuiz(15)" class="p-4 bg-indigo-50 hover:bg-indigo-600 hover:text-white rounded-2xl font-black transition">15 Soal</button>
+                    </div>
+                </div>
+            </div>
+            <div id="q-container" class="hidden bg-white p-10 rounded-[2.5rem] shadow-xl max-w-2xl mx-auto"></div>
+        </section>
+
+        <section id="rekapan" class="segment">
+            <div id="print-area" class="max-w-2xl mx-auto bg-white p-12 rounded-[3rem] shadow-2xl border-8 border-double border-slate-100 text-center space-y-8">
+                <div class="border-b-4 border-indigo-950 pb-6">
+                    <h1 class="text-3xl font-black text-indigo-950 uppercase tracking-tighter">HASIL CAPAIAN BELAJAR</h1>
+                    <p class="text-blue-600 font-bold text-xs uppercase tracking-widest mt-2">Genetica Master Lab v18 - SMA Raudlatul Jannah</p>
+                </div>
+                <div class="py-8">
+                    <p class="text-slate-400 italic text-[10px] uppercase font-bold tracking-widest mb-2">Diberikan Kepada:</p>
+                    <h2 id="res-name" class="text-4xl font-serif font-bold text-indigo-900 border-b-2 px-10">Nama Siswa</h2>
+                    <div class="flex justify-center gap-8 mt-12">
+                        <div class="p-6 bg-slate-50 rounded-3xl w-40">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase">Skor</p>
+                            <p id="res-score" class="text-5xl font-black text-indigo-600">0</p>
+                        </div>
+                        <div class="p-6 bg-slate-50 rounded-3xl w-40 flex flex-col justify-center">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase">Status</p>
+                            <p id="res-status" class="text-2xl font-black">LULUS</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-between items-end pt-12 text-left">
+                    <div class="text-[10px] font-bold text-slate-400">
+                        <p id="res-date"></p>
+                        <p>ID: LAB-V18-GEN</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-[10px] mb-8">Guru Mata Pelajaran,</p>
+                        <p class="font-bold text-xs underline">Nanik Utami, ST., S.PD.</p>
+                    </div>
+                </div>
+                <div class="no-print pt-8 flex gap-4 justify-center">
+                    <button onclick="window.print()" class="bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg">Cetak Hasil</button>
+                    <button onclick="showSegment('home')" class="bg-slate-200 px-8 py-3 rounded-xl font-bold">Kembali</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        let currentMode = 'mono';
+        let selectedParents = [];
+        let stuName = "";
+
+        function showSegment(id) {
+            document.querySelectorAll('.segment').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if(id === 'game1') initGame1('mono');
+            if(id === 'game2') initGame2();
+        }
+
+        function sortG(s) {
+            if(!s) return "";
+            if(s.length === 2) return s.split('').sort((a,b) => a.localeCompare(b, 'en', {caseFirst:'upper'})).join('');
+            if(s.length === 4) {
+                let p1 = s.substring(0,2).split('').sort((a,b) => a.localeCompare(b, 'en', {caseFirst:'upper'})).join('');
+                let p2 = s.substring(2,4).split('').sort((a,b) => a.localeCompare(b, 'en', {caseFirst:'upper'})).join('');
+                return p1 + p2;
+            }
+            return s;
+        }
+
+        function getG(p) {
+            if(p.length === 2) return [p[0], p[1]];
+            let g = [];
+            for(let i=0; i<2; i++) for(let j=2; j<4; j++) g.push(p[i]+p[j]);
+            return [...new Set(g)];
+        }
+
+        function setMode(m) {
+            currentMode = m;
+            document.getElementById('m-mono').className = m === 'mono' ? 'px-4 py-1 rounded-full text-[10px] font-bold bg-indigo-600 text-white' : 'px-4 py-1 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600';
+            document.getElementById('m-di').className = m === 'di' ? 'px-4 py-1 rounded-full text-[10px] font-bold bg-indigo-600 text-white' : 'px-4 py-1 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600';
+            document.getElementById('f1-box').classList.add('hidden');
+            document.getElementById('f2-box').classList.add('hidden');
+        }
+
+        function doF1() {
+            let p1 = sortG(document.getElementById('p1-in').value);
+            let p2 = sortG(document.getElementById('p2-in').value);
+            if(!p1 || !p2) return alert("Genotipe kosong!");
+            let g1 = getG(p1), g2 = getG(p2);
+            let resSet = new Set();
+            g1.forEach(a => g2.forEach(b => {
+                let res = (currentMode === 'mono') ? sortG(a+b) : sortG(a[0]+b[0]) + sortG(a[1]+b[1]);
+                resSet.add(res);
+            }));
+            let html = "";
+            resSet.forEach(res => { html += `<div onclick="selectF1('${res}', this)" class="f1-card p-4 bg-white rounded-xl shadow-sm font-bold text-xl text-indigo-600">${res}</div>`; });
+            document.getElementById('f1-list').innerHTML = html;
+            document.getElementById('f1-box').classList.remove('hidden');
+            selectedParents = []; updateSelectionUI();
+        }
+
+        function selectF1(gen, el) {
+            if(selectedParents.length < 2) { selectedParents.push(gen); el.classList.add('selected'); } 
+            else { selectedParents = [gen]; document.querySelectorAll('.f1-card').forEach(c => c.classList.remove('selected')); el.classList.add('selected'); }
+            updateSelectionUI();
+        }
+
+        function updateSelectionUI() {
+            document.getElementById('sel-1').innerText = selectedParents[0] || "?";
+            document.getElementById('sel-2').innerText = selectedParents[1] || "?";
+            document.getElementById('btn-f2').classList.toggle('hidden', selectedParents.length < 2);
+        }
+
+        function doF2() {
+            let pA = selectedParents[0], pB = selectedParents[1];
+            let gA = getG(pA), gB = getG(pB);
+            let table = `<tr class="p-head"><td>♂ \ ♀</td>${gB.map(g => `<td>${g}</td>`).join('')}</tr>`;
+            let genC = {}, phenC = {};
+            gA.forEach(ga => {
+                table += `<tr><td class="bg-slate-100 font-bold">${ga}</td>`;
+                gB.forEach(gb => {
+                    let res = (currentMode === 'mono') ? sortG(ga+gb) : sortG(ga[0]+gb[0]) + sortG(ga[1]+gb[1]);
+                    genC[res] = (genC[res] || 0) + 1;
+                    let pName = (currentMode === 'mono') ? (res[0] === res[0].toUpperCase() ? "Dominan" : "Resesif") : 
+                                ((res[0] === res[0].toUpperCase() && res[2] === res[2].toUpperCase()) ? "Dom-Dom" : (res[0] === res[0].toUpperCase() ? "Dom-Res" : (res[2] === res[2].toUpperCase() ? "Res-Dom" : "Res-Res")));
+                    phenC[pName] = (phenC[pName] || 0) + 1;
+                    table += `<td class="p-4 border font-bold text-indigo-700">${res}</td>`;
+                });
+                table += `</tr>`;
+            });
+            document.getElementById('f2-table').innerHTML = table;
+            let tot = gA.length * gB.length;
+            document.getElementById('f2-gen').innerHTML = Object.entries(genC).map(([k,v]) => `<li>${k}: <b>${v}/${tot}</b></li>`).join('');
+            document.getElementById('f2-phen').innerHTML = Object.entries(phenC).map(([k,v]) => `<li>${k}: <b>${v}/${tot}</b></li>`).join('');
+            document.getElementById('f2-box').classList.remove('hidden');
+        }
+
+        function initGame1(m) {
+            document.getElementById('btn-gm-mono').className = m === 'mono' ? "px-6 py-2 rounded-xl font-bold bg-indigo-600 text-white" : "px-6 py-2 rounded-xl font-bold bg-slate-100 text-slate-600";
+            document.getElementById('btn-gm-di').className = m === 'di' ? "px-6 py-2 rounded-xl font-bold bg-indigo-600 text-white" : "px-6 py-2 rounded-xl font-bold bg-slate-100 text-slate-600";
+            const d = document.getElementById('deck1'); d.innerHTML = "";
+            const z = document.getElementById('zones1'); z.innerHTML = "";
+            let items = m === 'mono' ? ["AA", "Aa", "aa", "AA", "aa"] : ["AABB", "Aabb", "aaBB", "aabb", "AaBb"];
+            let cats = m === 'mono' ? ["Dominan", "Resesif"] : ["Dom-Dom", "Dom-Res", "Res-Dom", "Res-Res"];
+            cats.forEach(c => z.innerHTML += `<div ondrop="dropG1(event, '${c}', '${m}')" ondragover="event.preventDefault()" class="drop-zone border-indigo-200"><b>${c}</b><div class="flex flex-wrap gap-1 mt-2"></div></div>`);
+            items.sort(()=>Math.random()-0.5).forEach((v,i) => {
+                let el = document.createElement('div'); el.id = "g1-"+i; el.draggable = true; el.className = "draggable"; el.innerText = v;
+                el.ondragstart = (e) => e.dataTransfer.setData("text", e.target.id); d.appendChild(el);
+            });
+        }
+
+        function dropG1(ev, cat, m) {
+            ev.preventDefault();
+            let id = ev.dataTransfer.getData("text"), el = document.getElementById(id), gen = el.innerText, ok = false;
+            if(m === 'mono') {
+                if(cat === "Dominan") ok = gen[0] === gen[0].toUpperCase();
+                if(cat === "Resesif") ok = (gen[0] === gen[0].toLowerCase() && gen[1] === gen[1].toLowerCase());
+            } else {
+                if(cat === "Dom-Dom") ok = gen[0] === gen[0].toUpperCase() && gen[2] === gen[2].toUpperCase();
+                if(cat === "Dom-Res") ok = gen[0] === gen[0].toUpperCase() && gen[2] === gen[2].toLowerCase();
+                if(cat === "Res-Dom") ok = gen[0] === gen[0].toLowerCase() && gen[2] === gen[2].toUpperCase();
+                if(cat === "Res-Res") ok = gen[0] === gen[0].toLowerCase() && gen[2] === gen[2].toLowerCase();
+            }
+            if(ok) { ev.currentTarget.querySelector('div').appendChild(el); document.getElementById('score1').innerText = parseInt(document.getElementById('score1').innerText)+10; }
+        }
+
+        function initGame2() {
+            const n = document.getElementById('enz-names'); n.innerHTML = "";
+            const z = document.getElementById('enz-zones'); z.innerHTML = "";
+            const ez = [{n:"Helikase", f:"Buka pilinan DNA"}, {n:"Polimerase", f:"Sintesis rantai baru"}, {n:"Ligase", f:"Sambung Okazaki"}, {n:"Primase", f:"Sintesis RNA Primer"}];
+            ez.sort(()=>Math.random()-0.5).forEach((e,i) => n.innerHTML += `<div id="en-${i}" draggable="true" ondragstart="event.dataTransfer.setData('text', event.target.id)" class="draggable text-center">${e.n}</div>`);
+            ez.forEach(e => z.innerHTML += `<div class="flex gap-4 items-center bg-white p-3 rounded-2xl border shadow-sm"><p class="text-xs font-bold w-2/3">${e.f}</p><div ondrop="dropG2(event, '${e.n}')" ondragover="event.preventDefault()" class="drop-zone w-1/3 text-[9px] italic">Drop</div></div>`);
+        }
+
+        function dropG2(ev, name) {
+            ev.preventDefault();
+            let id = ev.dataTransfer.getData("text"), el = document.getElementById(id);
+            if(el.innerText === name) { ev.currentTarget.innerHTML = `<span class="text-emerald-600 font-bold">${name} ✓</span>`; el.remove();
+            document.getElementById('score2').innerText = parseInt(document.getElementById('score2').innerText)+20; }
+        }
+
+        let qIdx = 0, score = 0, totalQ = 0, selectedQ = [];
+        const masterBank = [
+            {q: "Rasio fenotipe F2 monohibrid Mendel adalah...", a: ["1:2:1", "3:1", "9:3:3:1", "1:1"], c: 1},
+            {q: "Enzim penyambung DNA adalah...", a: ["Helikase", "Ligase", "Polimerase", "Primase"], c: 1},
+            {q: "Gamet yang terbentuk dari AaBb adalah...", a: ["AB, Ab, aB, ab", "AB, ab", "AA, BB", "Aa, Bb"], c: 0},
+            {q: "Hukum I Mendel disebut juga...", a: ["Asortasi", "Segregasi", "Dominansi", "Resesif"], c: 1},
+            {q: "Genotipe aa bersifat...", a: ["Dominan", "Heterozigot", "Homozigot Resesif", "Intermediet"], c: 2}
+        ];
+
+        function startQuiz(num) {
+            stuName = document.getElementById('stu-name').value;
+            if(!stuName) return alert("Isi Nama!");
+            totalQ = num; score = 0; qIdx = 0;
+            selectedQ = [...masterBank].sort(() => Math.random() - 0.5).slice(0, num);
+            document.getElementById('eval-setup').classList.add('hidden');
+            document.getElementById('q-container').classList.remove('hidden');
+            renderQ();
+        }
+
+        function renderQ() {
+            if(qIdx >= totalQ) return finishQuiz();
+            let q = selectedQ[qIdx];
+            document.getElementById('q-container').innerHTML = `
+                <p class="text-[10px] font-bold text-blue-600 uppercase mb-2">Soal ${qIdx+1} / ${totalQ}</p>
+                <h3 class="text-xl font-bold mb-6">${q.q}</h3>
+                <div class="space-y-3">${q.a.map((ans, i) => `<div onclick="checkAns(${i})" class="quiz-option font-semibold">${ans}</div>`).join('')}</div>
+            `;
+        }
+
+        function checkAns(i) {
+            if(i === selectedQ[qIdx].c) score++;
+            qIdx++; renderQ();
+        }
+
+        function finishQuiz() {
+            let final = Math.round((score/totalQ)*100);
+            document.getElementById('res-name').innerText = stuName;
+            document.getElementById('res-score').innerText = final;
+            document.getElementById('res-status').innerText = final >= 75 ? "LULUS" : "REMIDIAL";
+            document.getElementById('res-date').innerText = new Date().toLocaleDateString('id-ID');
+            showSegment('rekapan');
+        }
+    </script>
 </body>
 </html>
